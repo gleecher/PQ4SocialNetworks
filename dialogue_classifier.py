@@ -6,6 +6,7 @@ import datetime
 import csv
 import numpy as np
 import time
+from nltk.tokenize import RegexpTokenizer
 
 def get_raw_training_data(filename):
     """Opens a CSV file and extracts its data into a dictionary structure. 
@@ -44,17 +45,85 @@ def preprocess_words(words, stemmer):
 
     return list(word_stems)
 
+def organize_raw_training_data(raw_training_data, stemmer):
+    """For each element of our training_data list... 
+    
+    1) Retrieve list of tokens from the sentence
+    2) Add list of tokens to "words" list
+    3) Add (token_list, actor_name) tuple to list of "documents" list
+    4) Add never-before-seen actors to "classes" list (no duplicates!)
 
+    Afterwards, finds the stems of all words in the "words" list
 
+    Returns "words", "documents", and "classes" lists
+    """
+    stem_list = []
+    word_list = []
+    actor_list = []
+    documents = []
+    
+    tokenizer = RegexpTokenizer(r'\w+')
+    for line_dict in raw_training_data:
+        actor = line_dict['person']
+        sentence = line_dict['sentence']
+        
+        if actor not in actor_list:
+            actor_list.append(actor)
+        
+        token_sent = tokenizer.tokenize(sentence)
+        for word in token_sent:
+            word_list.append(word)
+  
+        documents.append((token_sent, actor))
+    
+    # Modify our list of words to contain word stems
+    stem_list = preprocess_words(word_list, stemmer)
+    
+    return stem_list, actor_list, documents
+
+def create_training_data(word_stems, classes, documents, stemmer):
+    """Given some organized raw training data, returns a list of
+    training data formatted according to the Bag of Words model. 
+
+    """
+    output = []
+    training_data = []
+    
+    for pair in documents:
+        sentence_stems = preprocess_words(pair[0], stemmer)
+        bag = []
+
+        for word in word_stems:
+            if word in sentence_stems:
+                bag.append(int(1))
+            else:
+                bag.append(int(0))
+        
+        actors = []
+        for actor in classes:
+            if actor == pair[1]:
+                actors.append(int(1))
+            else:
+                actors.append(int(0))
+    
+        output.append(actors)
+        training_data.append(bag)
+        
+    return training_data, output
 
 def main():
     stemmer = LancasterStemmer()
     raw_training_data = get_raw_training_data('dialogue_data.csv')
-    print(raw_training_data)
+    #print(raw_training_data)
 
-    words = ["running", "runner", "runs", "happy", "happiness", "happenings", "banana", "hello"]
-    print(preprocess_words(words, stemmer))
+    words, classes, documents = organize_raw_training_data(raw_training_data, stemmer)
+    print("words: " + str(words))
+    print("classes: " + str(classes))
+    print("documents: " + str(documents))
 
+    training_data, output = create_training_data(words, classes, documents, stemmer)
+    print("Training data: " + str(training_data))
+    print("\n\nOUTPUT: " + str(output))
 
 if __name__ == "__main__":
     main()
