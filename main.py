@@ -1,8 +1,26 @@
-"""TODO: add more here..."""
+"""
+Collaborators: Alex Tyson, Gannon Leech, Josh Lin
+CSCI 3725 - Computational Creativity
+Party Quest 4: Social Networks
+Last Modified: 4/26/21
+Description: The main class which sets up and runs our dialogue classifier neural network.
+Most of this code was provided to us to use.
+Known Bugs: N/A
+"""
+
+# Imports
+import nltk
+from nltk.stem.lancaster import LancasterStemmer
+import os
+import json
+import datetime
+import csv
+import numpy as np
+import time
+from nltk.tokenize import RegexpTokenizer
+from dialogue_classifier import *
 
 """* * * TRAINING * * *"""
-
-import numpy as np
 
 def init_synapses(X, hidden_neurons, classes):
     """Initializes our synapses (using random values)."""
@@ -174,13 +192,31 @@ def classify(words, classes, sentence):
 def main():
     """TODO: more instructions here..."""
 
+    stemmer = LancasterStemmer()
+    raw_training_data = get_raw_training_data('dialogue_data.csv')
+
+    words, classes, documents = organize_raw_training_data(raw_training_data, stemmer)
+
+    # print("words: " + str(words))
+    # print("classes: " + str(classes))
+    # print("documents: " + str(documents))
+
+    training_data, output = create_training_data(words, classes, documents, stemmer)
+    # print("Training data: " + str(training_data))
+    # print("\n\nOUTPUT: " + str(output))
+    
     # Comment this out if you have already trained once and don't want to re-train.
-    start_training(words, classes, training_data, output)
+    #start_training(words, classes, training_data, output)
 
     # Classify new sentences.
     classify(words, classes, "will you look into the mirror?")
     classify(words, classes, "mithril, as light as a feather, and as hard as dragon scales.")
-    classify(words, classes, "the thieves!")
+    classify(words, classes, "my thieves!")
+    classify(words, classes, "the world is changed")
+    classify(words, classes, "the quest stands on the edge of a knife")
+
+    classify(words, classes, "I'm going on an adventure!")
+    classify(words, classes, "my pizza!!")
 
 
 if __name__ == "__main__":

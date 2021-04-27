@@ -1,3 +1,13 @@
+"""
+Collaborators: Alex Tyson, Gannon Leech, Josh Lin
+CSCI 3725 - Computational Creativity
+Party Quest 4: Social Networks
+Last Modified: 4/26/2021
+Description: all the functions necessary to train/test a neural network for a dialogue classifier
+Known Bugs: N/A
+"""
+
+# Imports
 import nltk
 from nltk.stem.lancaster import LancasterStemmer
 import os
@@ -43,7 +53,7 @@ def preprocess_words(words, stemmer):
         stem = stemmer.stem(word)
         word_stems.add(stem)
 
-    return list(word_stems)
+    return sorted(list(word_stems))
 
 def organize_raw_training_data(raw_training_data, stemmer):
     """For each element of our training_data list... 
@@ -81,10 +91,13 @@ def organize_raw_training_data(raw_training_data, stemmer):
     
     return stem_list, actor_list, documents
 
+
 def create_training_data(word_stems, classes, documents, stemmer):
     """Given some organized raw training data, returns a list of
     training data formatted according to the Bag of Words model. 
 
+    Output matches a sentence to the actor who said it 
+    (as provided with the classes parameter)
     """
     output = []
     training_data = []
@@ -111,10 +124,20 @@ def create_training_data(word_stems, classes, documents, stemmer):
         
     return training_data, output
 
+
+def sigmoid(z):
+    """Calculate the sigmoid for a given input x"""
+    return 1 / (1 + np.exp(-z))
+
+
+def sigmoid_output_to_derivative(output):
+    """Convert the sigmoid function's output to its derivative."""
+    return output * (1-output)
+
+
 def main():
     stemmer = LancasterStemmer()
     raw_training_data = get_raw_training_data('dialogue_data.csv')
-    #print(raw_training_data)
 
     words, classes, documents = organize_raw_training_data(raw_training_data, stemmer)
     print("words: " + str(words))
