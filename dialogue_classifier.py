@@ -21,17 +21,15 @@ from nltk.tokenize import RegexpTokenizer
 
 def get_raw_training_data(filename):
     """Opens a CSV file of actor/dialogue data and parses it line-by-line 
-    into dictionary structures. These dictionaries are then returned in
-    a list as raw training data for a neural network.
-
-    Each dictionary will have two keys: "person", which is paired with the
-    name of the actor who is speaking, and "sentence", which is paired 
-    with a sentence that person has said.
+        into dictionary structures. These dictionaries are then returned in
+        a list as raw training data for a neural network.
+        Each dictionary will have two keys: "person", which is paired with the
+        name of the actor who is speaking, and "sentence", which is paired 
+        with a sentence that person has said.
     
-    All dictionary entries are lowercase to make actor word comparison easier.
-
-    Args:
-        filename (str): a csv file containing data
+        All dictionary entries are lowercase to make actor word comparison easier.
+        Args:
+            filename (str): a csv file containing data
     """
 
     training_data = []
@@ -47,7 +45,10 @@ def get_raw_training_data(filename):
 
 def preprocess_words(words, stemmer):
     """Given a list of words, stems each word and returns a 
-    sorted list of the word stems without duplicates.
+        sorted list of the word stems without duplicates.
+
+        Args:
+            words (list): A list of words coming from a tokenized sentence
     """
     word_stems = set()
 
@@ -60,18 +61,23 @@ def preprocess_words(words, stemmer):
 
 def organize_raw_training_data(raw_training_data, stemmer):
     """Given raw training data and a stemmer, returns the
-    categorized data in the form of 3 different lists:
-        words:      the stems of all words in the training data (no duplicates)  
-        documents:  tuples of a tokenized-sentence/actor 
-        classes:    all actors in the training data (no duplicates)  
+        categorized data in the form of 3 different lists:
+            words:      the stems of all words in the training data (no duplicates)  
+            documents:  tuples of a tokenized-sentence/actor 
+            classes:    all actors in the training data (no duplicates)  
+        For each element of the training data list: 
+        1) Retrieve list of tokens from the sentence
+        2) Add list of tokens to "words" list
+        3) Add (token_list, actor_name) tuple to list of "documents" list
+        4) Add never-before-seen actors to "classes" list
+        At the end, replaces words in the "words" list with their stem. 
 
-    For each element of the training data list: 
-    1) Retrieve list of tokens from the sentence
-    2) Add list of tokens to "words" list
-    3) Add (token_list, actor_name) tuple to list of "documents" list
-    4) Add never-before-seen actors to "classes" list
+        Args:
+            raw_training_data (list): A list of dictionaries mapping actors to their said
+                sentences.
+            stemmer (stemmer): A stemmer imported from nltk
 
-    At the end, replaces words in the "words" list with their stem.  
+        Return: a list of stemmed words, a list of actors, and a tuple containing (tokenized sentence, actor)
     """
     stem_list = []
     word_list = []
@@ -100,11 +106,19 @@ def organize_raw_training_data(raw_training_data, stemmer):
 
 def create_training_data(word_stems, classes, documents, stemmer):
     """Given some organized raw training data, returns a list of
-    training data formatted according to the Bag of Words model. 
+        training data formatted according to the Bag of Words model. 
+        Also returns a list called "output", which matches each 
+        entry of training data to the actor who said it 
+        (as provided by the classes argument)
 
-    Also returns a list called "output", which matches each 
-    entry of training data to the actor who said it 
-    (as provided by the classes argument)
+        Args:
+            word_stems (list): List of stemmed words
+            classes (list): List of actor names
+            documents (tuple): A tuple containing (tokenized sentence, actor)
+            stemmer (stemmer): A stemmer imported from nltk
+
+        Return: Training data represented as a list of active or inactive bits
+            that are generated using the Bag of Words model. 
     """
     output = []
     training_data = []
@@ -139,7 +153,6 @@ def sigmoid(z):
 
 def sigmoid_output_to_derivative(output):
     """Convert the sigmoid function's output to its derivative.
-
     (This function was provided in the lab handout)"""
     return output * (1-output)
 
