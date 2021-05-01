@@ -18,19 +18,22 @@ import numpy as np
 import time
 from nltk.tokenize import RegexpTokenizer
 
+
 def get_raw_training_data(filename):
-    """Opens a CSV file and extracts its data into a dictionary structure. 
-    This dictionary will have two keys: "person", which is paired with the
+    """Opens a CSV file of actor/dialogue data and parses it line-by-line 
+    into dictionary structures. These dictionaries are then returned in
+    a list as raw training data for a neural network.
+
+    Each dictionary will have two keys: "person", which is paired with the
     name of the actor who is speaking, and "sentence", which is paired 
     with a sentence that person has said.
     
-    All entries are lowercase to make actor word comparison easier.
+    All dictionary entries are lowercase to make actor word comparison easier.
 
     Args:
         filename (str): a csv file containing data
-    
-    returns training_data: a list of dictionaries 
     """
+
     training_data = []
     filename = "inputs/" + filename
     with open(filename, newline='') as csvfile:
@@ -43,10 +46,9 @@ def get_raw_training_data(filename):
 
 
 def preprocess_words(words, stemmer):
-    """Given a list of words, stems each word and returns a list 
-    of the word stems without duplicates."""
-    
-    # Note: unwanted tokens?
+    """Given a list of words, stems each word and returns a 
+    sorted list of the word stems without duplicates.
+    """
     word_stems = set()
 
     for word in words:
@@ -55,17 +57,21 @@ def preprocess_words(words, stemmer):
 
     return sorted(list(word_stems))
 
+
 def organize_raw_training_data(raw_training_data, stemmer):
-    """For each element of our training_data list... 
-    
+    """Given raw training data and a stemmer, returns the
+    categorized data in the form of 3 different lists:
+        words:      the stems of all words in the training data (no duplicates)  
+        documents:  tuples of a tokenized-sentence/actor 
+        classes:    all actors in the training data (no duplicates)  
+
+    For each element of the training data list: 
     1) Retrieve list of tokens from the sentence
     2) Add list of tokens to "words" list
     3) Add (token_list, actor_name) tuple to list of "documents" list
-    4) Add never-before-seen actors to "classes" list (no duplicates!)
+    4) Add never-before-seen actors to "classes" list
 
-    Afterwards, finds the stems of all words in the "words" list
-
-    Returns "words", "documents", and "classes" lists
+    At the end, replaces words in the "words" list with their stem.  
     """
     stem_list = []
     word_list = []
@@ -96,8 +102,9 @@ def create_training_data(word_stems, classes, documents, stemmer):
     """Given some organized raw training data, returns a list of
     training data formatted according to the Bag of Words model. 
 
-    Output matches a sentence to the actor who said it 
-    (as provided with the classes parameter)
+    Also returns a list called "output", which matches each 
+    entry of training data to the actor who said it 
+    (as provided by the classes argument)
     """
     output = []
     training_data = []
@@ -132,12 +139,14 @@ def sigmoid(z):
 
 def sigmoid_output_to_derivative(output):
     """Convert the sigmoid function's output to its derivative.
-    
-    This function was provided in the lab handout"""
+
+    (This function was provided in the lab handout)"""
     return output * (1-output)
 
 
 def main():
+    """This is code written to test the functionality of individual functions"""
+
     stemmer = LancasterStemmer()
     raw_training_data = get_raw_training_data('dialogue_data.csv')
 
