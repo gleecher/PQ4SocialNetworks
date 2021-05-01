@@ -126,12 +126,14 @@ def create_training_data(word_stems, classes, documents, stemmer):
 
 
 def sigmoid(z):
-    """Calculate the sigmoid for a given input x"""
+    """Calculate the sigmoid for a given input z"""
     return 1 / (1 + np.exp(-z))
 
 
 def sigmoid_output_to_derivative(output):
-    """Convert the sigmoid function's output to its derivative."""
+    """Convert the sigmoid function's output to its derivative.
+    
+    This function was provided in the lab handout"""
     return output * (1-output)
 
 

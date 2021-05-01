@@ -190,23 +190,16 @@ def classify(words, classes, sentence):
 
 
 def main():
-    """TODO: more instructions here..."""
 
     stemmer = LancasterStemmer()
     raw_training_data = get_raw_training_data('dialogue_data.csv')
 
     words, classes, documents = organize_raw_training_data(raw_training_data, stemmer)
 
-    # print("words: " + str(words))
-    # print("classes: " + str(classes))
-    # print("documents: " + str(documents))
-
     training_data, output = create_training_data(words, classes, documents, stemmer)
-    # print("Training data: " + str(training_data))
-    # print("\n\nOUTPUT: " + str(output))
     
     # Comment this out if you have already trained once and don't want to re-train.
-    #start_training(words, classes, training_data, output)
+    start_training(words, classes, training_data, output)
 
     # Classify new sentences.
     classify(words, classes, "will you look into the mirror?")
